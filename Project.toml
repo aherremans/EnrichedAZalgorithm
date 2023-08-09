@@ -1,0 +1,11 @@
+[deps]
+AZalgorithm = "90d92579-6541-4ede-9175-79584c56f705"
+BasisFunctions = "4343a256-5453-507d-8aad-01a9d7189916"
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+BlockArrays = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
+ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
+DomainSets = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
+GridArrays = "356ae075-8bc9-5ef9-a342-46c9ba26438c"
+LinearMaps = "7a12625a-238d-50fd-b39a-03d52299707e"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
