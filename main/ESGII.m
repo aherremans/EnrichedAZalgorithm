@@ -2,6 +2,7 @@
 % "Enriched spectral methods and applications to problems with weakly
 % singular solutions" [Chen, Shen 2018] --> section 3.1
 % ! this script requires chebfun
+addpath('../util');
 
 Nlist = 4:2:16;
 f = @(x,y) exp(x+y);
