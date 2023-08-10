@@ -4,21 +4,21 @@
 % ! this script requires chebfun
 addpath('../util');
 
-Nlist = 4:2:16;
+sqrtNlist = 4:2:16;
 f = @(x,y) exp(x+y);
 
-errors0 = zeros(length(Nlist)-1,1);                 % errors of standard Galerkin method
-errorsESG = zeros(length(Nlist)-1,1);               % errors of ESG-II
-errorsAZ = zeros(length(Nlist)-1,1);                % errors of Galerkin + collocation ('AZ')
-MK = 2;                                             % # smoothness constraints
-grd = linspace(-1,1,7); grd = grd(2:end-1);         % grid for collocation constraints
+errors0 = zeros(length(sqrtNlist)-1,1);                 % errors of standard Galerkin method
+errorsESG = zeros(length(sqrtNlist)-1,1);               % errors of ESG-II
+errorsAZ = zeros(length(sqrtNlist)-1,1);                % errors of Galerkin + collocation ('AZ')
+MK = 2;                                                 % # smoothness constraints
+grd = linspace(-1,1,7); grd = grd(2:end-1);             % grid for collocation constraints
 [xx,yy] = ndgrid(grd,grd); xx = xx(:); yy = yy(:);    
 
 % error grid
 grd = linspace(-1,1,100); grd = grd(2:end-1);
 [xx_error,yy_error] = ndgrid(grd,grd);
 xx_error = xx_error(:); yy_error = yy_error(:);
-M = length(xx_error);
+Merror = length(xx_error);
 
 % reference solution is ESG-II with N = 30
 load('reference_sol.mat');
@@ -53,27 +53,27 @@ psi_dx = diff(psi,1,2);
 psi_dy = diff(psi,1,1);
 Lpsi = -laplacian(psi); 
 
-for k = 1:length(Nlist)
-    N = Nlist(k)
+for k = 1:length(sqrtNlist)
+    sqrtN = sqrtNlist(k)
 
     % Galerkin system
-    Cinv = diag(((1:(N-1)).*(2:N)).^(-1));
-    B = zeros(N-1,N-1);
-    for n = 1:(N-1)
+    Cinv = diag(((1:(sqrtN-1)).*(2:sqrtN)).^(-1));
+    B = zeros(sqrtN-1,sqrtN-1);
+    for n = 1:(sqrtN-1)
         B(n,n) = 2*n*(n+1)/((2*(n-1)+1)*(2*(n-1)+5));
         if(n > 2)
             B(n,n-2) = -n*(n+1)/((2*(n-1)-1)*(2*(n-1)+1));
         end
-        if(n < N-2)
+        if(n < sqrtN-2)
             B(n,n+2) = -n*(n+1)/((2*(n-1)+5)*(2*(n-1)+7));
         end
     end
 
     % compute right-hand sides
-    F = zeros(N-1,N-1);
-    Fpsi = zeros(N-1,N-1);
-    for i = 0:(N-2)
-        for j = 0:(N-2)
+    F = zeros(sqrtN-1,sqrtN-1);
+    Fpsi = zeros(sqrtN-1,sqrtN-1);
+    for i = 0:(sqrtN-2)
+        for j = 0:(sqrtN-2)
             F(i+1,j+1) = integral2(@(x,y) f(x,y) .* phi(i,j,x,y), -1, 1, -1, 1) ...
                 /((xn(i)^2*hn(i))*(xn(j)^2*hn(j))); 
             Fpsi(i+1,j+1) = integral2(@(x,y) psi_dx(x,y) .* phi_dx(i,j,x,y) ...
@@ -91,7 +91,7 @@ for k = 1:length(Nlist)
     % basis)
     U = sylvester(Cinv*B, transpose(B)*Cinv, Cinv*F*Cinv);
     sol0 = @(x,y) evalsmooth(U,x,y);
-    errors0(k) = norm(sol0(xx_error,yy_error) - solution, 2)/sqrt(M);
+    errors0(k) = norm(sol0(xx_error,yy_error) - solution, 2)/sqrt(Merror);
 
     % new singular basis = singular functions - their approximation in the
     % smooth basis
@@ -104,7 +104,7 @@ for k = 1:length(Nlist)
     psi_j_K = psi_j(end-MK+1:end,end-MK+1:end); U_K = U(end-MK+1:end,end-MK+1:end);
     s = psi_j_K(:) \ U_K(:);
     solESG = @(x,y) evalsmooth(U,x,y) + s*newpsi(x,y);
-    errorsESG(k) = norm(solESG(xx_error,yy_error) - solution, 2)/sqrt(M);
+    errorsESG(k) = norm(solESG(xx_error,yy_error) - solution, 2)/sqrt(Merror);
 
     % solution using AZ algorithm (approximation in new singular  
     % basis using collocation constraints)
@@ -114,13 +114,13 @@ for k = 1:length(Nlist)
     Lnewpsi = Lpsi + laplacian(chebfun2(@(x,y) smoothpsi(x,y), domain));
     sAZ = Lnewpsi(xx,yy) \ (f(xx,yy) - Lsol0(xx,yy));
     solAZ = @(x,y) evalsmooth(U,x,y) + sAZ*newpsi(x,y);
-    errorsAZ(k) = norm(solAZ(xx_error,yy_error) - solution, 2)/sqrt(M);
+    errorsAZ(k) = norm(solAZ(xx_error,yy_error) - solution, 2)/sqrt(Merror);
 end
 
 % convergence plot
 figure;
-semilogy(Nlist,errors0, '.-'); xlabel('N'); ylabel('L2 error (compared to reference)');
-hold on; semilogy(Nlist,errorsESG, '.-'); semilogy(Nlist,errorsAZ, '.-'); 
+semilogy(sqrtNlist.^2,errors0, '.-'); xlabel('N'); ylabel('L2 error (compared to reference)');
+hold on; semilogy(sqrtNlist.^2,errorsESG, '.-'); semilogy(sqrtNlist.^2,errorsAZ, '.-'); 
 legend('classical SG', 'ESG-II', 'AZ');
 
 %% auxiliary functions to evaluate smooth basis functions
