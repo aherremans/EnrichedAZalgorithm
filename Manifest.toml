@@ -6,7 +6,9 @@ project_hash = "087f78ace2e96b5c97c4c1f695e34904deda5852"
 
 [[deps.AZalgorithm]]
 deps = ["LinearAlgebra", "LinearMaps", "LowRankApprox"]
-path = "/Users/astridherremans/Documents/julia/gitpackages/AZalgorithm.jl"
+git-tree-sha1 = "cc9e3557ab60df8c1cf74ed1f941e00240862608"
+repo-rev = "main"
+repo-url = "https://github.com/daanhb/AZalgorithm.jl.git"
 uuid = "90d92579-6541-4ede-9175-79584c56f705"
 version = "0.1.1"
 
